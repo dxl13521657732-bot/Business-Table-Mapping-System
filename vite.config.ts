@@ -2,9 +2,9 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [vue()],
-  base: process.env.GITHUB_ACTIONS ? '/Business-Table-Mapping-System/' : '/',
+  base: command === 'build' ? '/Business-Table-Mapping-System/' : '/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -21,4 +21,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))
