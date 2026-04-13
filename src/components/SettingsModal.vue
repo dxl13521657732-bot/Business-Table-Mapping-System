@@ -58,22 +58,17 @@
         <span class="section-sub">（登录认证，可与映射表不同）</span>
       </div>
 
-      <a-form-item>
-        <a-checkbox v-model:checked="form.sameApi">
-          使用与映射表相同的 Base URL 和 Token
-        </a-checkbox>
+      <a-form-item label="Base URL">
+        <a-input v-model:value="form.usersBaseUrl" placeholder="不填则与映射表相同" allow-clear />
+        <div class="field-hint">用户表所在 Teable 服务地址，与映射表不同时才需填写</div>
       </a-form-item>
 
-      <template v-if="!form.sameApi">
-        <a-form-item label="用户表 Base URL">
-          <a-input v-model:value="form.usersBaseUrl" placeholder="https://app.teable.io/api" allow-clear />
-        </a-form-item>
-        <a-form-item label="用户表 API Token">
-          <a-input-password v-model:value="form.usersToken" placeholder="请输入用户表的 API Token" allow-clear />
-        </a-form-item>
-      </template>
+      <a-form-item label="API Token">
+        <a-input-password v-model:value="form.usersToken" placeholder="不填则与映射表相同" allow-clear />
+        <div class="field-hint">用户表的访问 Token，与映射表不同时才需填写</div>
+      </a-form-item>
 
-      <a-form-item label="用户表 Table ID">
+      <a-form-item label="Table ID">
         <a-input v-model:value="form.usersTableId" placeholder="tblXXXXXXXX（选填）" allow-clear />
         <div class="field-hint">需含字段：用户名、密码、姓名。不填则无法使用登录功能。</div>
       </a-form-item>
@@ -128,7 +123,6 @@ const form = reactive({
   usersBaseUrl: settingsStore.usersBaseUrl,
   usersTableId: settingsStore.usersTableId,
   usersToken: settingsStore.usersToken,
-  sameApi: !settingsStore.usersBaseUrl && !settingsStore.usersToken,
 })
 
 watch(
@@ -141,7 +135,6 @@ watch(
       form.usersBaseUrl = settingsStore.usersBaseUrl
       form.usersTableId = settingsStore.usersTableId
       form.usersToken = settingsStore.usersToken
-      form.sameApi = !settingsStore.usersBaseUrl && !settingsStore.usersToken
       canClose.value = settingsStore.isConfigured
       mappingResult.value = null
       usersResult.value = null
@@ -183,8 +176,8 @@ async function handleTest() {
   mappingResult.value = null
   usersResult.value = null
   try {
-    const usersBase = form.sameApi ? form.baseUrl : (form.usersBaseUrl || form.baseUrl)
-    const usersToken = form.sameApi ? form.token : (form.usersToken || form.token)
+    const usersBase = form.usersBaseUrl || form.baseUrl
+    const usersToken = form.usersToken || form.token
     const [mr, ur] = await Promise.all([
       testTable(form.baseUrl, form.token, form.tableId),
       form.usersTableId
@@ -205,9 +198,9 @@ async function handleSave() {
       baseUrl: form.baseUrl,
       tableId: form.tableId,
       token: form.token,
-      usersBaseUrl: form.sameApi ? '' : form.usersBaseUrl,
+      usersBaseUrl: form.usersBaseUrl,
       usersTableId: form.usersTableId,
-      usersToken: form.sameApi ? '' : form.usersToken,
+      usersToken: form.usersToken,
     })
     message.success('设置已保存')
     emit('update:open', false)
