@@ -25,7 +25,8 @@ export const useMappingStore = defineStore('mapping', () => {
         f.数据库名称?.toLowerCase().includes(kw) ||
         f.底层表名?.toLowerCase().includes(kw) ||
         f.描述用途?.toLowerCase().includes(kw) ||
-        f.负责人?.toLowerCase().includes(kw)
+        f.数仓表类型?.toLowerCase().includes(kw) ||
+        f.数仓数据表名?.toLowerCase().includes(kw)
       )
     })
   })

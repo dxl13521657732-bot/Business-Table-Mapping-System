@@ -4,7 +4,7 @@
     <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap">
       <a-input-search
         v-model:value="mappingStore.searchKeyword"
-        placeholder="搜索业务系统、模块、数据库、表名、描述..."
+        placeholder="搜索业务系统、模块、数据库、表名、数仓表名..."
         style="flex: 1; min-width: 280px"
         allow-clear
       />
@@ -34,13 +34,12 @@
       :pagination="{ pageSize: 20, showSizeChanger: true, showQuickJumper: true, showTotal: (t: number) => `共 ${t} 条` }"
       row-key="id"
       size="middle"
-      :scroll="{ x: 1100 }"
+      :scroll="{ x: 1300 }"
     >
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'data_layer'">
-          <a-tag v-if="record.fields['数据层级']" :color="layerColor(record.fields['数据层级'])">
-            {{ record.fields['数据层级'] }}
-          </a-tag>
+        <template v-if="column.key === 'dw_access'">
+          <a-tag v-if="record.fields['数仓是否接入'] === '是'" color="green">已接入</a-tag>
+          <a-tag v-else-if="record.fields['数仓是否接入'] === '否'" color="default">未接入</a-tag>
           <span v-else style="color: #ccc">—</span>
         </template>
         <template v-if="column.key === 'actions'">
@@ -81,34 +80,29 @@ const columns = [
     title: '业务系统',
     key: 'system',
     customRender: ({ record }: { record: MappingRecord }) => record.fields['业务系统名称'],
-    width: 130,
+    width: 120,
     ellipsis: true,
   },
   {
     title: '模块功能',
     key: 'module',
     customRender: ({ record }: { record: MappingRecord }) => record.fields['模块功能名称'],
-    width: 140,
+    width: 130,
     ellipsis: true,
   },
   {
     title: '数据库名称',
     key: 'database',
     customRender: ({ record }: { record: MappingRecord }) => record.fields['数据库名称'],
-    width: 160,
+    width: 150,
     ellipsis: true,
   },
   {
     title: '底层表名',
     key: 'table',
     customRender: ({ record }: { record: MappingRecord }) => record.fields['底层表名'],
-    width: 180,
+    width: 170,
     ellipsis: true,
-  },
-  {
-    title: '数据层级',
-    key: 'data_layer',
-    width: 90,
   },
   {
     title: '描述用途',
@@ -117,10 +111,22 @@ const columns = [
     ellipsis: true,
   },
   {
-    title: '负责人',
-    key: 'owner',
-    customRender: ({ record }: { record: MappingRecord }) => record.fields['负责人'] || '—',
+    title: '数仓接入',
+    key: 'dw_access',
     width: 90,
+  },
+  {
+    title: '数仓表类型',
+    key: 'dw_type',
+    customRender: ({ record }: { record: MappingRecord }) => record.fields['数仓表类型'] || '—',
+    width: 100,
+  },
+  {
+    title: '数仓数据表名',
+    key: 'dw_table',
+    customRender: ({ record }: { record: MappingRecord }) => record.fields['数仓数据表名'] || '—',
+    width: 170,
+    ellipsis: true,
   },
   {
     title: '操作',
@@ -129,18 +135,6 @@ const columns = [
     fixed: 'right',
   },
 ]
-
-const layerColorMap: Record<string, string> = {
-  ODS: 'blue',
-  DWD: 'cyan',
-  DWS: 'green',
-  ADS: 'gold',
-  '不确定': 'default',
-}
-
-function layerColor(layer: string) {
-  return layerColorMap[layer] || 'default'
-}
 
 async function handleDelete(id: string) {
   try {

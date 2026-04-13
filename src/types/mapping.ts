@@ -9,13 +9,13 @@ export interface MappingFields {
   模块功能名称: string
   数据库名称: string
   底层表名: string
-  数据层级?: '不确定' | 'ODS' | 'DWD' | 'DWS' | 'ADS'
   描述用途?: string
-  负责人?: string
-  更新时间?: string
+  数仓是否接入?: '是' | '否'
+  数仓表类型?: string
+  数仓数据表名?: string
 }
 
-export const DATA_LAYERS = ['ODS', 'DWD', 'DWS', 'ADS', '不确定'] as const
+export const DW_ACCESS_OPTIONS = ['是', '否'] as const
 
 export interface TeableListResponse {
   records: MappingRecord[]
@@ -40,9 +40,10 @@ export interface ExcelRow {
   模块功能名称: string
   数据库名称: string
   底层表名: string
-  数据层级?: string
   描述用途?: string
-  负责人?: string
+  数仓是否接入?: string
+  数仓表类型?: string
+  数仓数据表名?: string
   _errors?: string[]
   _selected?: boolean
 }

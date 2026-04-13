@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 import * as XLSX from 'xlsx'
 import type { ExcelRow, MappingFields } from '@/types/mapping'
-import { DATA_LAYERS } from '@/types/mapping'
 
 // 列名映射：Excel 列名 → 字段名
 const COLUMN_MAP: Record<string, keyof MappingFields> = {
@@ -20,17 +19,19 @@ const COLUMN_MAP: Record<string, keyof MappingFields> = {
   表名: '底层表名',
   table_name: '底层表名',
   table: '底层表名',
-  数据层级: '数据层级',
-  层级: '数据层级',
-  data_layer: '数据层级',
-  layer: '数据层级',
   描述: '描述用途',
   用途: '描述用途',
   描述用途: '描述用途',
   description: '描述用途',
   备注: '描述用途',
-  负责人: '负责人',
-  owner: '负责人',
+  数仓是否接入: '数仓是否接入',
+  是否接入数仓: '数仓是否接入',
+  dw_access: '数仓是否接入',
+  数仓表类型: '数仓表类型',
+  dw_type: '数仓表类型',
+  数仓数据表名: '数仓数据表名',
+  数仓表名: '数仓数据表名',
+  dw_table: '数仓数据表名',
 }
 
 const REQUIRED_FIELDS: (keyof MappingFields)[] = [
@@ -68,27 +69,24 @@ export function useExcelImport() {
               _selected: true,
             }
 
-            // 列名映射
             for (const [colName, value] of Object.entries(raw)) {
               const fieldName = COLUMN_MAP[colName.trim()]
               if (fieldName) {
-                ;(row as Record<string, unknown>)[fieldName] = String(
-                  value
-                ).trim()
+                ;(row as Record<string, unknown>)[fieldName] = String(value).trim()
               }
             }
 
-            // 数据层级校验
-            if (
-              row.数据层级 &&
-              !DATA_LAYERS.includes(
-                row.数据层级 as (typeof DATA_LAYERS)[number]
-              )
-            ) {
-              row._errors!.push(
-                `数据层级"${row.数据层级}"无效，应为 ${DATA_LAYERS.join('/')}`
-              )
-              row.数据层级 = undefined
+            // 数仓是否接入校验：统一为 是/否
+            if (row.数仓是否接入) {
+              const v = String(row.数仓是否接入).trim()
+              if (['是', 'Y', 'y', 'yes', 'Yes', 'YES', '1', 'true'].includes(v)) {
+                row.数仓是否接入 = '是'
+              } else if (['否', 'N', 'n', 'no', 'No', 'NO', '0', 'false'].includes(v)) {
+                row.数仓是否接入 = '否'
+              } else {
+                row._errors!.push(`"数仓是否接入"值"${v}"无效，应为 是/否`)
+                row.数仓是否接入 = undefined
+              }
             }
 
             // 必填字段校验
@@ -123,9 +121,10 @@ export function useExcelImport() {
       模块功能名称: row.模块功能名称,
       数据库名称: row.数据库名称,
       底层表名: row.底层表名,
-      数据层级: row.数据层级 as MappingFields['数据层级'],
       描述用途: row.描述用途,
-      负责人: row.负责人,
+      数仓是否接入: row.数仓是否接入 as MappingFields['数仓是否接入'],
+      数仓表类型: row.数仓表类型,
+      数仓数据表名: row.数仓数据表名,
     }
   }
 

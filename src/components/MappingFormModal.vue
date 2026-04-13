@@ -6,7 +6,7 @@
     @ok="handleSave"
     ok-text="保存"
     cancel-text="取消"
-    width="600px"
+    width="640px"
     :confirm-loading="saving"
   >
     <a-form :model="form" layout="vertical" :rules="rules" ref="formRef">
@@ -46,33 +46,40 @@
           </a-form-item>
         </a-col>
       </a-row>
-      <a-row :gutter="16">
-        <a-col :span="12">
-          <a-form-item label="数据层级" name="数据层级">
-            <a-select
-              v-model:value="form['数据层级']"
-              placeholder="请选择"
-              allow-clear
-            >
-              <a-select-option v-for="l in DATA_LAYERS" :key="l" :value="l">
-                {{ l }}
-              </a-select-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label="负责人" name="负责人">
-            <a-input v-model:value="form['负责人']" placeholder="姓名" />
-          </a-form-item>
-        </a-col>
-      </a-row>
-      <a-form-item label="描述用途" name="描述用途">
+      <a-form-item label="描述用途">
         <a-textarea
           v-model:value="form['描述用途']"
           placeholder="表的业务含义、取数注意事项等"
-          :rows="3"
+          :rows="2"
         />
       </a-form-item>
+      <a-divider style="margin: 12px 0">数仓信息</a-divider>
+      <a-row :gutter="16">
+        <a-col :span="8">
+          <a-form-item label="数仓是否接入">
+            <a-select v-model:value="form['数仓是否接入']" placeholder="请选择" allow-clear>
+              <a-select-option value="是">是</a-select-option>
+              <a-select-option value="否">否</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+        <a-col :span="8">
+          <a-form-item label="数仓表类型">
+            <a-input
+              v-model:value="form['数仓表类型']"
+              placeholder="如：ODS、DWD、ADS"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :span="8">
+          <a-form-item label="数仓数据表名">
+            <a-input
+              v-model:value="form['数仓数据表名']"
+              placeholder="如：dwd_sales_order_d"
+            />
+          </a-form-item>
+        </a-col>
+      </a-row>
     </a-form>
   </a-modal>
 </template>
@@ -80,7 +87,6 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
 import type { MappingRecord, MappingFields } from '@/types/mapping'
-import { DATA_LAYERS } from '@/types/mapping'
 
 const props = defineProps<{ open: boolean; record?: MappingRecord | null }>()
 const emit = defineEmits<{
@@ -96,9 +102,10 @@ const emptyForm = (): Partial<MappingFields> => ({
   模块功能名称: '',
   数据库名称: '',
   底层表名: '',
-  数据层级: undefined,
-  负责人: '',
   描述用途: '',
+  数仓是否接入: undefined,
+  数仓表类型: '',
+  数仓数据表名: '',
 })
 
 const form = reactive<Partial<MappingFields>>(emptyForm())
