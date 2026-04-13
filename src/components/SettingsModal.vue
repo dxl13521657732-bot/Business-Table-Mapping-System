@@ -48,6 +48,16 @@
           在 Teable 个人设置 → API Token 中生成
         </div>
       </a-form-item>
+      <a-form-item label="用户表 ID（Users Table ID）" name="usersTableId">
+        <a-input
+          v-model:value="form.usersTableId"
+          placeholder="tblXXXXXXXXXXXX（选填，用于登录验证）"
+          allow-clear
+        />
+        <div style="color: #888; font-size: 12px; margin-top: 4px">
+          Teable 用户管理表的 ID，需包含字段：用户名、密码、姓名、是否启用
+        </div>
+      </a-form-item>
       <a-form-item>
         <a-button :loading="testing" @click="handleTest">测试连接</a-button>
         <span v-if="testResult" :style="{ marginLeft: '12px', color: testResult.ok ? '#52c41a' : '#ff4d4f' }">
@@ -80,6 +90,7 @@ const form = reactive({
   baseUrl: settingsStore.baseUrl,
   tableId: settingsStore.tableId,
   token: settingsStore.token,
+  usersTableId: settingsStore.usersTableId,
 })
 
 watch(
@@ -89,6 +100,7 @@ watch(
       form.baseUrl = settingsStore.baseUrl
       form.tableId = settingsStore.tableId
       form.token = settingsStore.token
+      form.usersTableId = settingsStore.usersTableId
       canClose.value = settingsStore.isConfigured
       testResult.value = null
     }
@@ -136,6 +148,7 @@ async function handleSave() {
       baseUrl: form.baseUrl,
       tableId: form.tableId,
       token: form.token,
+      usersTableId: form.usersTableId,
     })
     message.success('设置已保存')
     emit('update:open', false)

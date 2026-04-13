@@ -2,17 +2,32 @@
   <div class="mapping-view">
     <!-- 顶栏 -->
     <div class="header">
-      <div class="header-title">
-        <TableOutlined style="font-size: 20px; color: #1677ff; margin-right: 8px" />
-        <span>业务表映射系统</span>
+      <div class="header-left">
+        <div class="header-logo">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="8" fill="rgba(255,255,255,0.2)"/>
+            <rect x="6" y="9" width="20" height="3" rx="1.5" fill="white"/>
+            <rect x="6" y="15" width="20" height="3" rx="1.5" fill="white"/>
+            <rect x="6" y="21" width="13" height="3" rx="1.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="header-title">业务表映射系统</span>
       </div>
-      <div class="header-actions">
-        <a-tooltip title="Teable 连接设置">
-          <a-button
-            type="text"
-            :icon="h(SettingOutlined)"
-            @click="settingsOpen = true"
-          />
+      <div class="header-right">
+        <div class="user-info">
+          <div class="user-avatar">{{ userInitial }}</div>
+          <span class="user-name">{{ displayName }}</span>
+        </div>
+        <a-divider type="vertical" style="background: rgba(255,255,255,0.3); height: 20px" />
+        <a-tooltip title="系统设置">
+          <a-button type="text" class="header-btn" @click="settingsOpen = true">
+            <SettingOutlined />
+          </a-button>
+        </a-tooltip>
+        <a-tooltip title="退出登录">
+          <a-button type="text" class="header-btn" @click="handleLogout">
+            <LogoutOutlined />
+          </a-button>
         </a-tooltip>
       </div>
     </div>
@@ -26,32 +41,20 @@
       />
     </div>
 
-    <!-- 设置弹窗 -->
-    <SettingsModal
-      v-model:open="settingsOpen"
-      @saved="handleSettingsSaved"
-    />
-
-    <!-- 新增/编辑弹窗 -->
-    <MappingFormModal
-      v-model:open="formOpen"
-      :record="editingRecord"
-      @save="handleSave"
-    />
-
-    <!-- 导入弹窗 -->
-    <ImportModal
-      v-model:open="importOpen"
-      @imported="handleImported"
-    />
+    <!-- 弹窗 -->
+    <SettingsModal v-model:open="settingsOpen" @saved="handleSettingsSaved" />
+    <MappingFormModal v-model:open="formOpen" :record="editingRecord" @save="handleSave" />
+    <ImportModal v-model:open="importOpen" @imported="handleImported" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue'
-import { SettingOutlined, TableOutlined } from '@ant-design/icons-vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { SettingOutlined, LogoutOutlined } from '@ant-design/icons-vue'
 import { useSettingsStore } from '@/stores/settings'
 import { useMappingStore } from '@/stores/mapping'
+import { useAuthStore } from '@/stores/auth'
 import MappingTable from '@/components/MappingTable.vue'
 import SettingsModal from '@/components/SettingsModal.vue'
 import MappingFormModal from '@/components/MappingFormModal.vue'
@@ -59,13 +62,18 @@ import ImportModal from '@/components/ImportModal.vue'
 import type { MappingRecord, MappingFields } from '@/types/mapping'
 import { message } from 'ant-design-vue'
 
+const router = useRouter()
 const settingsStore = useSettingsStore()
 const mappingStore = useMappingStore()
+const authStore = useAuthStore()
 
 const settingsOpen = ref(false)
 const formOpen = ref(false)
 const importOpen = ref(false)
 const editingRecord = ref<MappingRecord | null>(null)
+
+const displayName = computed(() => authStore.currentUser?.displayName || '用户')
+const userInitial = computed(() => displayName.value.charAt(0).toUpperCase())
 
 onMounted(() => {
   if (!settingsStore.isConfigured) {
@@ -105,49 +113,112 @@ function handleSettingsSaved() {
 }
 
 function handleImported() {
-  // batchCreate 已乐观更新，无需重新拉取
   message.success('导入完成')
+}
+
+function handleLogout() {
+  authStore.logout()
+  router.push('/login')
 }
 </script>
 
 <style scoped>
 .mapping-view {
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--color-bg, #f0f4ff);
   display: flex;
   flex-direction: column;
 }
 
+/* 渐变 Header */
 .header {
-  background: #fff;
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
   padding: 0 24px;
-  height: 56px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #f0f0f0;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.25);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-logo svg {
+  width: 32px;
+  height: 32px;
 }
 
 .header-title {
   font-size: 18px;
-  font-weight: 600;
-  color: #262626;
-  display: flex;
-  align-items: center;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.5px;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+}
+
+.user-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.header-btn {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-size: 16px !important;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px !important;
+}
+
+.header-btn:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+/* 主内容 */
 .content {
   flex: 1;
   padding: 24px;
-  max-width: 1400px;
+  max-width: 1500px;
   width: 100%;
-  margin: 0 auto;
+  margin: 20px auto 0;
   background: #fff;
-  margin-top: 16px;
-  border-radius: 8px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.08);
 }
 </style>

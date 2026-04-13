@@ -1,0 +1,93 @@
+:root {
+  --color-bg: #f0f4ff;
+  --color-primary: #4f46e5;
+  --color-primary-dark: #4338ca;
+  --color-primary-light: #818cf8;
+  --color-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  --color-text: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-border: #e2e8f0;
+  --color-card: #ffffff;
+  --color-card-shadow: 0 4px 20px rgba(79, 70, 229, 0.08);
+  --color-table-header: #f1f5ff;
+  --color-table-stripe: #f8f9ff;
+  --radius-card: 16px;
+  --radius-btn: 8px;
+}
+
+/* 全局背景 */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Ant Design 主色覆盖 */
+.ant-btn-primary {
+  background: var(--color-gradient) !important;
+  border: none !important;
+  border-radius: var(--radius-btn) !important;
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35) !important;
+}
+
+.ant-btn-default {
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+  border-radius: var(--radius-btn) !important;
+}
+
+.ant-btn-default:hover {
+  background: rgba(79, 70, 229, 0.06) !important;
+}
+
+/* 表格样式 */
+.ant-table-thead > tr > th {
+  background: var(--color-table-header) !important;
+  color: var(--color-primary) !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid #c7d2fe !important;
+}
+
+.ant-table-tbody > tr:nth-child(odd) > td {
+  background: var(--color-table-stripe) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: #eef2ff !important;
+}
+
+/* 搜索框 */
+.ant-input-affix-wrapper:focus-within,
+.ant-input-affix-wrapper-focused {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+}
+
+/* 弹窗 */
+.ant-modal-header {
+  background: var(--color-gradient) !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.ant-modal-title {
+  color: #ffffff !important;
+}
+
+.ant-modal-close {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.ant-modal-content {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+/* Tag 样式 */
+.ant-tag {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+}
