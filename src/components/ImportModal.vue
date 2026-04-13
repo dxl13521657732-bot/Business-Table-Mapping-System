@@ -124,7 +124,6 @@
 <script setup lang="ts">
 import { ref, computed, h } from 'vue'
 import { InboxOutlined, WarningOutlined, DownloadOutlined } from '@ant-design/icons-vue'
-import * as XLSX from 'xlsx'
 import { useExcelImport } from '@/composables/useExcelImport'
 import { useMappingStore } from '@/stores/mapping'
 import type { ExcelRow } from '@/types/mapping'
@@ -164,29 +163,82 @@ const columnHints = [
   { field: '数仓数据表名', examples: '数仓数据表名 / dw_table' },
 ]
 
-// 模板列头（与映射表字段一一对应）
-const TEMPLATE_HEADERS = [
-  '业务系统名称',
-  '模块功能名称',
-  '数据库名称',
-  '底层表名',
-  '描述用途',
-  '数仓是否接入',
-  '数仓表类型',
-  '数仓数据表名',
-]
+async function downloadTemplate() {
+  const ExcelJS = (await import('exceljs')).default
+  const wb = new ExcelJS.Workbook()
+  const ws = wb.addWorksheet('业务表映射')
 
-function downloadTemplate() {
-  const ws = XLSX.utils.aoa_to_sheet([
-    TEMPLATE_HEADERS,
-    // 示例行
-    ['LS系统', '销售模块', 'db_ls_ods', 't_sales_order', '销售订单明细表', '是', '离线', 'dwd_ls_sales_order_d'],
+  // 列定义
+  const columns = [
+    { header: '业务系统名称', key: 'sys',    width: 18 },
+    { header: '模块功能名称', key: 'mod',    width: 18 },
+    { header: '数据库名称',   key: 'db',     width: 20 },
+    { header: '底层表名',     key: 'tbl',    width: 22 },
+    { header: '描述用途',     key: 'desc',   width: 28 },
+    { header: '数仓是否接入', key: 'dw',     width: 16 },
+    { header: '数仓表类型',   key: 'type',   width: 14 },
+    { header: '数仓数据表名', key: 'dwtbl',  width: 24 },
+  ]
+  ws.columns = columns
+
+  // 表头样式（靛紫底白字）
+  const headerRow = ws.getRow(1)
+  headerRow.eachCell((cell, colIdx) => {
+    const isDwAccess = colIdx === 6  // 数仓是否接入是第6列
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: isDwAccess ? 'FFDC2626' : 'FF4F46E5' },  // 红 or 靛紫
+    }
+    cell.font = { color: { argb: 'FFFFFFFF' }, bold: true, size: 11 }
+    cell.alignment = { vertical: 'middle', horizontal: 'center' }
+    cell.border = {
+      bottom: { style: 'medium', color: { argb: isDwAccess ? 'FFB91C1C' : 'FF3730A3' } },
+    }
+  })
+  headerRow.height = 24
+
+  // 添加说明行（灰色背景）
+  const noteRow = ws.addRow([
+    '必填', '必填', '必填', '必填',
+    '选填', '★ 只能填：是 / 否', '选填（如：实时、离线）', '选填',
   ])
-  // 设置列宽
-  ws['!cols'] = TEMPLATE_HEADERS.map(() => ({ wch: 18 }))
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, '业务表映射')
-  XLSX.writeFile(wb, '业务表映射导入模板.xlsx')
+  noteRow.eachCell((cell, colIdx) => {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFF' } }
+    cell.font = {
+      color: { argb: colIdx === 6 ? 'FFDC2626' : 'FF888888' },
+      italic: true,
+      size: 10,
+      bold: colIdx === 6,
+    }
+    cell.alignment = { horizontal: 'center' }
+  })
+
+  // 示例数据行
+  ws.addRow(['LS系统', '销售模块', 'db_ls_ods', 't_sales_order', '销售订单明细表', '是', '离线', 'dwd_ls_sales_order_d'])
+
+  // 数仓是否接入列（F列）添加下拉数据验证
+  ws.dataValidations.add('F3:F1000', {
+    type: 'list',
+    allowBlank: true,
+    formulae: ['"是,否"'],
+    showErrorMessage: true,
+    errorStyle: 'stop',
+    errorTitle: '输入无效',
+    error: '此列只能填入：是 或 否',
+  })
+
+  // 导出
+  const buffer = await wb.xlsx.writeBuffer()
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = '业务表映射导入模板.xlsx'
+  a.click()
+  URL.revokeObjectURL(url)
   message.success('模板已下载')
 }
 
