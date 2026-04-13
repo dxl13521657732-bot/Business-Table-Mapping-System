@@ -74,8 +74,13 @@ export async function updateRecord(
 
 export async function deleteRecords(ids: string[]): Promise<void> {
   const { baseUrl, tableId, token } = getConfig()
-  const client = createClient(baseUrl, token)
-  await client.delete(`/table/${tableId}/record`, {
-    data: { recordIds: ids },
+  // Teable DELETE 接口使用 query string 传递 recordIds[]，不支持请求体
+  const params = new URLSearchParams()
+  ids.forEach((id) => params.append('recordIds[]', id))
+  await fetch(`${baseUrl.replace(/\/$/, '')}/table/${tableId}/record?${params}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  }).then(async (r) => {
+    if (!r.ok) throw new Error(`删除失败（${r.status}）`)
   })
 }
