@@ -38,17 +38,6 @@
           />
         </a-form-item>
 
-        <a-form-item name="displayName">
-          <a-input
-            v-model:value="form.displayName"
-            placeholder="请输入姓名（选填）"
-            size="large"
-            class="reg-input"
-            :prefix="h(IdcardOutlined)"
-            allow-clear
-          />
-        </a-form-item>
-
         <a-form-item name="password">
           <a-input-password
             v-model:value="form.password"
@@ -108,7 +97,7 @@
 <script setup lang="ts">
 import { reactive, ref, h } from 'vue'
 import { useRouter } from 'vue-router'
-import { UserOutlined, LockOutlined, IdcardOutlined } from '@ant-design/icons-vue'
+import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
 import { checkUsernameExists, registerUser } from '@/api/auth'
 import { useSettingsStore } from '@/stores/settings'
 
@@ -122,7 +111,6 @@ const formRef = ref()
 
 const form = reactive({
   username: '',
-  displayName: '',
   password: '',
   confirmPassword: '',
 })
@@ -164,7 +152,6 @@ async function handleRegister() {
     await registerUser({
       用户名: form.username,
       密码: form.password,
-      姓名: form.displayName || form.username,
     })
     successMsg.value = '注册成功！2 秒后自动跳转到登录页...'
     setTimeout(() => router.push('/login'), 2000)
