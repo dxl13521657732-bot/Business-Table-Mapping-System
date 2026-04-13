@@ -28,7 +28,8 @@ jobs:
         run: npm run build
         env:
           GITHUB_ACTIONS: true
-          VITE_TEABLE_TOKEN: ${{ secrets.VITE_TEABLE_TOKEN }}
+          VITE_TEABLE_TOKEN:       ${{ secrets.VITE_TEABLE_TOKEN }}
+          VITE_TEABLE_USERS_TOKEN: ${{ secrets.VITE_TEABLE_USERS_TOKEN }}
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4

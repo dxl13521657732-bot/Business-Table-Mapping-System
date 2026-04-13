@@ -1,15 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-// 非敏感配置：直接写死（Base URL、Table ID 不需要保密）
-// 只有 Token 从 GitHub Actions Secret 注入（敏感，不能明文存代码）
+// 非敏感配置直接写死；Token 敏感，从 GitHub Actions Secret 注入
 const ENV = {
   BASE_URL:       'https://yach-teable.zhiyinlou.com/api',
   TABLE_ID:       'tblhTWtNkHUh3zmvHvI',
-  TOKEN:          import.meta.env.VITE_TEABLE_TOKEN || '',   // 唯一 Secret
+  TOKEN:          import.meta.env.VITE_TEABLE_TOKEN       || '',  // 映射表 Token
   USERS_BASE_URL: '',
   USERS_TABLE_ID: 'tblr6V3PuQB87EzLMiR',
-  USERS_TOKEN:    '',
+  USERS_TOKEN:    import.meta.env.VITE_TEABLE_USERS_TOKEN || '',  // 用户表 Token（不填则复用映射表 Token）
 }
 
 const KEYS = {
