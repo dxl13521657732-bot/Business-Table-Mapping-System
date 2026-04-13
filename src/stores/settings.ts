@@ -25,6 +25,23 @@ function get(key: string, envVal: string) {
   return localStorage.getItem(key) || envVal
 }
 
+// 首次加载时，把 ENV 默认值写入 localStorage（让 api/ 文件也能读到）
+function initLocalStorage() {
+  const pairs: [string, string][] = [
+    [KEYS.MAPPING_BASE_URL, ENV.BASE_URL],
+    [KEYS.MAPPING_TABLE_ID, ENV.TABLE_ID],
+    [KEYS.MAPPING_TOKEN,    ENV.TOKEN],
+    [KEYS.USERS_TABLE_ID,   ENV.USERS_TABLE_ID],
+    [KEYS.USERS_TOKEN,      ENV.USERS_TOKEN],
+  ]
+  pairs.forEach(([key, val]) => {
+    if (val && !localStorage.getItem(key)) {
+      localStorage.setItem(key, val)
+    }
+  })
+}
+initLocalStorage()
+
 export const useSettingsStore = defineStore('settings', () => {
   const baseUrl     = ref(get(KEYS.MAPPING_BASE_URL, ENV.BASE_URL))
   const tableId     = ref(get(KEYS.MAPPING_TABLE_ID, ENV.TABLE_ID))
