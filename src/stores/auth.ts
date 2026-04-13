@@ -8,6 +8,7 @@ interface AuthSession {
   userId: string
   username: string
   displayName: string
+  role: string
   expiry: number
 }
 
@@ -19,6 +20,8 @@ export const useAuthStore = defineStore('auth', () => {
   )
 
   const currentUser = computed(() => session.value)
+
+  const isAdmin = computed(() => session.value?.role === '管理员')
 
   async function login(username: string, password: string, remember: boolean): Promise<void> {
     const user = await queryUser(username)
@@ -38,6 +41,7 @@ export const useAuthStore = defineStore('auth', () => {
       userId: user.id,
       username: user.用户名,
       displayName: user.姓名 || user.用户名,
+      role: user.角色 || '用户',
       expiry,
     }
 
@@ -61,7 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
     return false
   }
 
-  return { session, isLoggedIn, currentUser, login, logout, checkSession }
+  return { session, isLoggedIn, isAdmin, currentUser, login, logout, checkSession }
 })
 
 function loadSession(): AuthSession | null {

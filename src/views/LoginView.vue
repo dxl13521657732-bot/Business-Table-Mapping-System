@@ -82,6 +82,10 @@
       </a-form>
 
       <div class="login-footer">
+        <div style="margin-bottom: 10px; color: #64748b; font-size: 14px">
+          没有账号？
+          <router-link to="/register" style="color: #4f46e5; font-weight: 600">立即注册</router-link>
+        </div>
         <a @click="settingsOpen = true" style="color: #94a3b8; font-size: 12px; cursor: pointer">
           ⚙ 系统设置
         </a>
