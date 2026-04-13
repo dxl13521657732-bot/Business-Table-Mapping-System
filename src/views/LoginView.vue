@@ -107,7 +107,7 @@ const settingsStore = useSettingsStore()
 
 const loading = ref(false)
 const errorMsg = ref('')
-const settingsOpen = ref(!settingsStore.isConfigured)
+const settingsOpen = ref(false)  // 登录页不自动弹设置，配置由构建时环境变量注入
 
 const form = reactive({
   username: '',
