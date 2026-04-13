@@ -19,7 +19,7 @@
           <span class="user-name">{{ displayName }}</span>
         </div>
         <a-divider type="vertical" style="background: rgba(255,255,255,0.3); height: 20px" />
-        <a-tooltip title="系统设置">
+        <a-tooltip v-if="authStore.isAdmin" title="系统设置">
           <a-button type="text" class="header-btn" @click="settingsOpen = true">
             <SettingOutlined />
           </a-button>
