@@ -9,6 +9,7 @@
     ok-text="保存"
     cancel-text="取消"
     width="520px"
+    :body-style="{ maxHeight: '70vh', overflowY: 'auto', padding: '24px' }"
   >
     <a-alert
       v-if="!canClose"

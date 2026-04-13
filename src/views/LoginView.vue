@@ -116,8 +116,7 @@ const form = reactive({
 
 async function handleLogin() {
   if (!settingsStore.usersTableId) {
-    errorMsg.value = '请先在系统设置中配置用户表 ID'
-    settingsOpen.value = true
+    errorMsg.value = '未配置用户表，请点击下方"系统设置"填写用户表 ID'
     return
   }
   loading.value = true
