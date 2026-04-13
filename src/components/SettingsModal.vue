@@ -48,6 +48,12 @@
           在 Teable 个人设置 → API Token 中生成
         </div>
       </a-form-item>
+      <a-form-item>
+        <a-button :loading="testing" @click="handleTest">测试连接</a-button>
+        <span v-if="testResult" :style="{ marginLeft: '12px', color: testResult.ok ? '#52c41a' : '#ff4d4f' }">
+          {{ testResult.msg }}
+        </span>
+      </a-form-item>
     </a-form>
   </a-modal>
 </template>
@@ -56,6 +62,7 @@
 import { reactive, ref, watch } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
 import { message } from 'ant-design-vue'
+import axios from 'axios'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{
@@ -66,6 +73,8 @@ const emit = defineEmits<{
 const settingsStore = useSettingsStore()
 const canClose = ref(settingsStore.isConfigured)
 const formRef = ref()
+const testing = ref(false)
+const testResult = ref<{ ok: boolean; msg: string } | null>(null)
 
 const form = reactive({
   baseUrl: settingsStore.baseUrl,
@@ -81,6 +90,7 @@ watch(
       form.tableId = settingsStore.tableId
       form.token = settingsStore.token
       canClose.value = settingsStore.isConfigured
+      testResult.value = null
     }
   }
 )
@@ -89,6 +99,34 @@ const rules = {
   baseUrl: [{ required: true, message: '请输入 Teable Base URL' }],
   tableId: [{ required: true, message: '请输入 Table ID' }],
   token: [{ required: true, message: '请输入 API Token' }],
+}
+
+async function handleTest() {
+  if (!form.baseUrl || !form.tableId || !form.token) {
+    testResult.value = { ok: false, msg: '请先填写所有字段' }
+    return
+  }
+  testing.value = true
+  testResult.value = null
+  try {
+    const res = await axios.get(`${form.baseUrl.replace(/\/$/, '')}/table/${form.tableId}/record`, {
+      params: { take: 1 },
+      headers: { Authorization: `Bearer ${form.token}` },
+    })
+    const count = res.data?.records?.length ?? 0
+    testResult.value = { ok: true, msg: `连接成功，已读取到数据` }
+  } catch (e: unknown) {
+    const status = (e as { response?: { status: number } })?.response?.status
+    if (status === 404) {
+      testResult.value = { ok: false, msg: '404：Table ID 不存在，请检查' }
+    } else if (status === 401 || status === 403) {
+      testResult.value = { ok: false, msg: `${status}：Token 无效或无权限` }
+    } else {
+      testResult.value = { ok: false, msg: `连接失败（${status ?? '网络错误'}）` }
+    }
+  } finally {
+    testing.value = false
+  }
 }
 
 async function handleSave() {

@@ -65,10 +65,10 @@
         </a-col>
         <a-col :span="8">
           <a-form-item label="数仓表类型">
-            <a-input
-              v-model:value="form['数仓表类型']"
-              placeholder="如：ODS、DWD、ADS"
-            />
+            <a-select v-model:value="form['数仓表类型']" placeholder="请选择" allow-clear>
+              <a-select-option value="实时">实时</a-select-option>
+              <a-select-option value="离线">离线</a-select-option>
+            </a-select>
           </a-form-item>
         </a-col>
         <a-col :span="8">
